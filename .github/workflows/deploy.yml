@@ -13,13 +13,12 @@ jobs:
 
     - name: Build and run Docker container on remote server
       run: |
-          cd ~/weather_bot
-          docker stop weather_bot || true
-          docker rm weather_bot || true
+          docker stop weather_bot
+          if ($?) { docker rm weather_bot }
           docker build -t weather_bot .
-          docker run -d --name weather_bot \
-            --env TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} \
-            --env WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }} \
+          docker run -d --name weather_bot `
+            --env TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} `
+            --env WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }} `
             weather_bot
 
     - name: Finish Job
