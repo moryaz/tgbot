@@ -1,0 +1,45 @@
+name: Deploy TGBot
+
+on:
+  push:
+    branches:
+      - main  
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build -t weather_bot_image .
+
+    - name: Copy project files to remote server
+      uses: appleboy/scp-action@v0.1.6
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "."
+        target: "~/weather_bot"
+
+    - name: Build and run Docker container on remote server
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd ~/weather_bot
+          docker stop weather_bot || true
+          docker rm weather_bot || true
+          docker build -t weather_bot .
+          docker run -d --name weather_bot \
+            --env TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} \
+            --env WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }} \
+            weather_bot
+            
+      - name: Finish Job
+        run: echo "Деплойчик-то прошел))))"
