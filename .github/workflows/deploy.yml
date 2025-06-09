@@ -1,9 +1,7 @@
 name: Deploy TGBot
 
 on:
-  push:
-    branches:
-      - main  
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -12,9 +10,6 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
-
-    - name: Build Docker image
-      run: docker build -t weather_bot_image .
 
     - name: Copy project files to remote server
       uses: appleboy/scp-action@v0.1.6
@@ -40,6 +35,6 @@ jobs:
             --env TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} \
             --env WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }} \
             weather_bot
-            
-      - name: Finish Job
-        run: echo "Деплойчик-то прошел))))"
+
+    - name: Finish Job
+      run: echo "Деплойчик-то прошел))))"
